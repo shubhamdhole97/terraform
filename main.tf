@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = "bucketshubhamdholechi"  # Replace with a unique S3 bucket name
+  bucket = "shubham25jan"  # Replace with a unique S3 bucket name
   acl    = "private"      # You can change the ACL as per your requirements
 
   tags = {
