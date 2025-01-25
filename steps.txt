@@ -34,7 +34,7 @@ pipeline {
         stage('04.Deploy to Nexus') {
             steps {
                 echo "Deploy to Nexus"
-                sh 'curl -v -u admin:Vtech@123 --upload-file target/msexcel-0.0.1-SNAPSHOT.jar http://localhost:8081/repository/abcd/com/msoffice/msexcel/0.0.1/msexcel-0.0.1-SNAPSHOT.jar'
+                sh 'curl -v -u admin:admin --upload-file target/msexcel-0.0.1-SNAPSHOT.jar http://localhost:8081/repository/abcd/com/msoffice/msexcel/0.0.1/msexcel-0.0.1-SNAPSHOT.jar'
             }
         }
 
@@ -56,13 +56,27 @@ pipeline {
             }
         }
 
-        // Stage 6: Run Terraform Apply
+        // Stage 6: Terraform Plan
+        stage('Terraform Plan') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '123']]) {
+                    script {
+                        echo "Running Terraform Plan"
+                        def planCmd = 'terraform plan -out=tfplan'
+                        def result = sh(script: planCmd, returnStdout: true).trim()
+                        echo "Terraform plan result: ${result}"
+                    }
+                }
+            }
+        }
+
+        // Stage 7: Run Terraform Apply
         stage('Terraform Apply') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: '123']]) {
                     script {
                         echo "Running Terraform Apply"
-                        def applyCmd = 'terraform apply -auto-approve'
+                        def applyCmd = 'terraform apply -auto-approve tfplan'
                         def result = sh(script: applyCmd, returnStdout: true).trim()
                         echo "Terraform apply result: ${result}"
                     }
